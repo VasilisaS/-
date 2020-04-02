@@ -1,0 +1,91 @@
+def dict_of_nodes_number(G):
+    #создаем cловарь - название вершины: число ее соседей
+    list_of_nodes = list(G.nodes)
+
+    dict_neighbor_number = {}
+
+    neighbor_number = []
+    for i in list_of_nodes:
+        neigh = []
+        for n in G.neighbors(i):
+            neigh.append(n)
+        neighbor_number.append(len(neigh))  
+    
+        dict_neighbor_number.update([(i,len(neigh))])
+    
+    return dict_neighbor_number    
+
+#возвращает список общих соседей вершин ребра edge
+def common_neighbors(G, edge):
+    common_list = [] 
+    neigh_i, neigh_j = [], []
+    for ni in G.neighbors(edge[0]):
+        for nj in G.neighbors(edge[1]):
+            if ni == nj:
+                common_list.append(ni)    
+    return common_list 
+    
+
+Функция preferential_attachment (dict_neighbor_number, list_of_edges)
+* возвращает список значений коээфициента.
+* на вход - словарь "вершина":число соседей и список ребер для которых предсказываем коэффициент
+
+def preferential_attachment(dict_neighbor_number, list_of_edges):
+    pref_attach = []
+    for edge in list_of_edges:
+        i = edge[0]
+        j = edge[1]
+        p = dict_neighbor_number.get(i) * dict_neighbor_number.get(j) 
+        pref_attach.append(p)
+    return pref_attach     
+
+
+
+Функция jaccard_coefficent(G, dict_neighbor_number, list_of_edges)
+* возвращает список значений коээфициента
+* на вход - граф(до удаления вершин), словарь "вершина":число соседей и список ребер для которых предсказываем коэффициент
+
+def jaccard_coefficent(G, dict_neighbor_number, list_of_edges):
+   
+    jac_coef = []
+    for edge in list_of_edges:
+        jc =  len(common_neighbors(G, edge))/(dict_neighbor_number.get(edge[0]) + dict_neighbor_number.get(edge[1]))
+        jac_coef.append(jc)
+    return jac_coef    
+
+
+
+Функция resource_allocation_index(G, dict_neighbor_number, list_of_edges)
+* возвращает список значений коээфициента
+* на вход - граф(до удаления вершин), словарь "вершина":число соседей и список ребер для которых предсказываем коэффициент
+def resource_allocation_index(G, dict_neighbor_number, list_of_edges):   
+    res_alloc = []
+    for edge in list_of_edges:
+        common_list = common_neighbors(G, edge) #список общих соседей
+        if not common_list:
+            res_alloc.append(0)
+        else: #если список общих соседей не пуст
+            ra = 0
+            for j in common_list:
+                ra = ra + 1/dict_neighbor_number.get(j)
+            res_alloc.append(ra)   
+    return res_alloc
+    
+    
+    
+Функция adamic_adar(G, dict_neighbor_number, list_of_edges)
+* возвращает список значений коээфициента
+* на вход - граф(до удаления вершин), словарь "вершина":число соседей и список ребер для которых предсказываем коэффициент
+
+def adamic_adar(G, dict_neighbor_number, list_of_edges):
+    adam_adar = []
+    for edge in list_of_edges:
+        common_list = common_neighbors(G, edge) #список общих соседей
+        if not common_list:
+            adam_adar.append(0)
+        else: #если список общих соседей не пуст
+            aa = 0
+            for j in common_list:
+                aa = aa + 1/np.log(1+dict_neighbor_number.get(j)) #! 1/log(Г(w) + 1)
+            adam_adar.append(aa)   
+    return adam_adar    
